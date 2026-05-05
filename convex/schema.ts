@@ -14,6 +14,7 @@ export default defineSchema({
     isPaid: v.optional(v.boolean()),
     isArchived: v.optional(v.boolean()),
     paymentProof: v.optional(v.id("_storage")),
+    registrationNumber: v.optional(v.string()),
   }),
   sponsors: defineTable({
     name: v.string(),

@@ -13,6 +13,8 @@ export const createRegistration = mutation({
     totalPrice: v.number(),
   },
   handler: async (ctx, args) => {
+    const registrationNumber = "FF-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+    
     const id = await ctx.db.insert("registrations", {
       name: args.name,
       email: args.email,
@@ -23,6 +25,7 @@ export const createRegistration = mutation({
       quantity: args.quantity,
       totalPrice: args.totalPrice,
       isPaid: false,
+      registrationNumber,
     });
     return id;
   },

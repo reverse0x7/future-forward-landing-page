@@ -185,7 +185,7 @@ const Checkout = () => {
                     type="file" 
                     ref={fileInputRef} 
                     className="hidden" 
-                    accept="image/*,.pdf" 
+                    accept="image/jpeg, image/png, image/webp" 
                     onChange={handleFileChange}
                   />
                   
@@ -206,7 +206,7 @@ const Checkout = () => {
                         <Upload className="w-6 h-6" />
                       </div>
                       <p className="font-medium text-foreground mb-1">Click to browse</p>
-                      <p className="text-xs text-muted-foreground">Supports JPG, PNG, PDF</p>
+                      <p className="text-xs text-muted-foreground">Supports JPG, PNG, WEBP</p>
                     </div>
                   )}
                 </div>

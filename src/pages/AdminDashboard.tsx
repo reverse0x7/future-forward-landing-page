@@ -420,6 +420,7 @@ function TabContent({ activeTab, searchTerm }: { activeTab: TabType; searchTerm:
             dataFilter={(item) => !item.isPaid && !item.isArchived}
             columns={[
               { key: "isPaid", label: "Paid", checkbox: true },
+              { key: "registrationNumber", label: "Reg ID" },
               { key: "name", label: "Name" },
               { key: "email", label: "Email" },
               { key: "tier", label: "Tier", badge: true },
@@ -443,6 +444,7 @@ function TabContent({ activeTab, searchTerm }: { activeTab: TabType; searchTerm:
             dataFilter={(item) => item.isPaid && !item.isArchived}
             columns={[
               { key: "isPaid", label: "Paid", checkbox: true },
+              { key: "registrationNumber", label: "Reg ID" },
               { key: "name", label: "Name" },
               { key: "email", label: "Email" },
               { key: "tier", label: "Tier", badge: true },
@@ -476,6 +478,7 @@ function TabContent({ activeTab, searchTerm }: { activeTab: TabType; searchTerm:
                 dataFilter={(item) => !!item.isArchived}
                 columns={[
                   { key: "isPaid", label: "Paid", checkbox: true },
+                  { key: "registrationNumber", label: "Reg ID" },
                   { key: "name", label: "Name" },
                   { key: "email", label: "Email" },
                   { key: "tier", label: "Tier", badge: true },
@@ -986,16 +989,20 @@ function GenericTable({
             </DialogTitle>
           </DialogHeader>
           {selectedRecord && (() => {
-            const regKeys = ["tier", "quantity", "totalPrice", "isPaid", "paymentProof"];
+            const regKeys = ["registrationNumber", "tier", "quantity", "totalPrice", "isPaid", "paymentProof"];
             
             const availableKeys = Object.keys(selectedRecord).filter(k => k !== "_id");
+            if (availableKeys.includes("quantity") && !availableKeys.includes("registrationNumber")) {
+              availableKeys.push("registrationNumber");
+            }
+            
             const personalGroup = availableKeys.filter(k => !regKeys.includes(k));
             const regGroup = availableKeys.filter(k => regKeys.includes(k));
 
             const sortFn = (a: string, b: string) => {
               const order = [
                 "name", "company", "email", "phone", "cnic", "_creationTime",
-                "tier", "quantity", "totalPrice", "isPaid"
+                "registrationNumber", "tier", "quantity", "totalPrice", "isPaid"
               ];
               if (a === "paymentProof") return 1;
               if (b === "paymentProof") return -1;
@@ -1019,7 +1026,7 @@ function GenericTable({
               
               return (
                 <div key={key} className={`space-y-1.5 p-4 rounded-xl border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent hover:border-purple-500/30 transition-all duration-300 ${isPaymentProof ? 'md:col-span-2' : ''}`}>
-                  <p className="text-[10px] font-bold text-purple-400/80 uppercase tracking-wider flex items-center gap-2">
+                  <p className="text-[10px] font-bold text-white/60 uppercase tracking-wider flex items-center gap-2">
                     {isCreationTime ? "Created At" : key.replace(/([A-Z])/g, ' $1').trim()}
                   </p>
                   <div className="text-sm text-white/90 break-words font-medium">
@@ -1028,11 +1035,31 @@ function GenericTable({
                     ) : isCreationTime ? (
                       new Date(value as number).toLocaleString()
                     ) : typeof value === "boolean" ? (
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${value ? "bg-green-500/20 text-green-400 border border-green-500/20" : "bg-red-500/20 text-red-400 border border-red-500/20"}`}>
-                        {value ? "Yes" : "No"}
-                      </span>
+                      key === "isPaid" && updateMutation ? (
+                        <div className="flex items-center gap-3">
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${value ? "bg-green-500/20 text-green-400 border border-green-500/20" : "bg-red-500/20 text-red-400 border border-red-500/20"}`}>
+                            {value ? "Yes" : "No"}
+                          </span>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-6 px-2 text-[10px] bg-white/5 border-white/10 hover:bg-white/10 text-white/70"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTogglePaid(selectedRecord._id, !value);
+                              setSelectedRecord({...selectedRecord, isPaid: !value});
+                            }}
+                          >
+                            Mark {value ? "Unpaid" : "Paid"}
+                          </Button>
+                        </div>
+                      ) : (
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${value ? "bg-green-500/20 text-green-400 border border-green-500/20" : "bg-red-500/20 text-red-400 border border-red-500/20"}`}>
+                          {value ? "Yes" : "No"}
+                        </span>
+                      )
                     ) : value === undefined || value === null || value === "" ? (
-                      <span className="text-white/20 italic font-normal">Not provided</span>
+                      <span className="text-white/20 italic font-normal">Not generated yet</span>
                     ) : (
                       String(value)
                     )}
