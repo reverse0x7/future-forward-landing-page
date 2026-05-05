@@ -926,7 +926,7 @@ function GenericTable({
                       />
                     </TableCell>
                     {columns.map((col) => (
-                      <TableCell key={col.key} className="py-4">
+                      <TableCell key={col.key} className="py-4" onClick={(e) => col.checkbox && e.stopPropagation()}>
                         {col.checkbox ? (
                           <div className="flex items-center justify-center w-full">
                             <Checkbox
