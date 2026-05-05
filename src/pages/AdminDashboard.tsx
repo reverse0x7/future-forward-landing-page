@@ -64,6 +64,12 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -118,6 +124,7 @@ export default function AdminDashboard() {
 }
 
 function DashboardContent() {
+  const { signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>("attendees");
   const [searchTerm, setSearchTerm] = useState("");
   const [exportFilter, setExportFilter] = useState<"all" | "paid" | "unpaid">("all");
@@ -270,13 +277,26 @@ function DashboardContent() {
           <div className="flex items-center justify-between px-2">
             <div className="flex items-center gap-3">
               <UserButton />
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-white/80">Active Session</span>
-                <span className="text-[10px] text-green-500 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                  Live
-                </span>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="flex flex-col cursor-pointer hover:bg-white/5 p-1 -ml-1 rounded-md transition-colors">
+                    <span className="text-xs font-medium text-white/80">Admin</span>
+                    <span className="text-[10px] text-green-500 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                      Live
+                    </span>
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" side="top" className="bg-[#0a0a0a] border-white/10 text-white min-w-[140px] mb-1 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+                  <DropdownMenuItem 
+                    onClick={() => signOut()}
+                    className="text-red-400 hover:text-red-300 hover:bg-red-400/10 cursor-pointer gap-2 focus:bg-red-400/10 focus:text-red-300"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
@@ -664,6 +684,7 @@ function GenericTable({
   hideMarkUnpaid?: boolean;
 }) {
   const [selectedIds, setSelectedIds] = useState<any[]>([]);
+  const [selectedRecord, setSelectedRecord] = useState<any | null>(null);
   const data = useQuery(query);
   const remove = useMutation(removeMutation);
   const update = useMutation(updateMutation || removeMutation);
@@ -891,9 +912,10 @@ function GenericTable({
                 {filteredData.map((item: any) => (
                   <TableRow
                     key={item._id}
-                    className={`border-white/5 transition-colors ${selectedIds.includes(item._id) ? 'bg-purple-600/10' : 'hover:bg-white/5'}`}
+                    onClick={() => setSelectedRecord(item)}
+                    className={`border-white/5 cursor-pointer transition-colors ${selectedIds.includes(item._id) ? 'bg-purple-600/10' : 'hover:bg-white/5'}`}
                   >
-                    <TableCell className="py-4 border-r border-white/5">
+                    <TableCell className="py-4 border-r border-white/5" onClick={(e) => e.stopPropagation()}>
                       <Checkbox
                         checked={selectedIds.includes(item._id)}
                         onCheckedChange={() => toggleSelect(item._id)}
@@ -923,7 +945,7 @@ function GenericTable({
                         )}
                       </TableCell>
                     ))}
-                    <TableCell className="text-right py-4 pr-6">
+                    <TableCell className="text-right py-4 pr-6" onClick={(e) => e.stopPropagation()}>
                       <div className="flex justify-end gap-2">
                         {archiveMutation && (
                           <Button
@@ -954,6 +976,101 @@ function GenericTable({
           </div>
         )}
       </CardContent>
+
+      {/* Record Details Modal */}
+      <Dialog open={!!selectedRecord} onOpenChange={(open) => !open && setSelectedRecord(null)}>
+        <DialogContent className="bg-black/80 backdrop-blur-2xl border-white/10 shadow-[0_0_50px_rgba(168,85,247,0.15)] text-white max-w-2xl max-h-[85vh] overflow-y-auto custom-scrollbar">
+          <DialogHeader className="border-b border-white/5 pb-4">
+            <DialogTitle className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              Record Details
+            </DialogTitle>
+          </DialogHeader>
+          {selectedRecord && (() => {
+            const regKeys = ["tier", "quantity", "totalPrice", "isPaid", "paymentProof"];
+            
+            const availableKeys = Object.keys(selectedRecord).filter(k => k !== "_id");
+            const personalGroup = availableKeys.filter(k => !regKeys.includes(k));
+            const regGroup = availableKeys.filter(k => regKeys.includes(k));
+
+            const sortFn = (a: string, b: string) => {
+              const order = [
+                "name", "company", "email", "phone", "cnic", "_creationTime",
+                "tier", "quantity", "totalPrice", "isPaid"
+              ];
+              if (a === "paymentProof") return 1;
+              if (b === "paymentProof") return -1;
+              
+              const idxA = order.indexOf(a);
+              const idxB = order.indexOf(b);
+              
+              if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+              if (idxA !== -1) return -1;
+              if (idxB !== -1) return 1;
+              return a.localeCompare(b);
+            };
+
+            personalGroup.sort(sortFn);
+            regGroup.sort(sortFn);
+
+            const renderField = (key: string) => {
+              const value = selectedRecord[key];
+              const isPaymentProof = key === "paymentProof" && value && typeof value === "string";
+              const isCreationTime = key === "_creationTime";
+              
+              return (
+                <div key={key} className={`space-y-1.5 p-4 rounded-xl border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent hover:border-purple-500/30 transition-all duration-300 ${isPaymentProof ? 'md:col-span-2' : ''}`}>
+                  <p className="text-[10px] font-bold text-purple-400/80 uppercase tracking-wider flex items-center gap-2">
+                    {isCreationTime ? "Created At" : key.replace(/([A-Z])/g, ' $1').trim()}
+                  </p>
+                  <div className="text-sm text-white/90 break-words font-medium">
+                    {isPaymentProof ? (
+                      <PaymentProofViewer storageId={value as string} />
+                    ) : isCreationTime ? (
+                      new Date(value as number).toLocaleString()
+                    ) : typeof value === "boolean" ? (
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${value ? "bg-green-500/20 text-green-400 border border-green-500/20" : "bg-red-500/20 text-red-400 border border-red-500/20"}`}>
+                        {value ? "Yes" : "No"}
+                      </span>
+                    ) : value === undefined || value === null || value === "" ? (
+                      <span className="text-white/20 italic font-normal">Not provided</span>
+                    ) : (
+                      String(value)
+                    )}
+                  </div>
+                </div>
+              );
+            };
+
+            return (
+              <div className="space-y-8 py-2">
+                {personalGroup.length > 0 && (
+                  <div className="space-y-4">
+                    {regGroup.length > 0 && (
+                      <h3 className="text-xs font-bold text-purple-400/60 uppercase tracking-widest pl-1">
+                        Personal Details
+                      </h3>
+                    )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {personalGroup.map(renderField)}
+                    </div>
+                  </div>
+                )}
+                
+                {regGroup.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-bold text-purple-400/60 uppercase tracking-widest pl-1">
+                      Registration Details
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {regGroup.map(renderField)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
@@ -1168,5 +1285,53 @@ function GenericForm({ formType, createMutation }: { formType: string; createMut
         {loading ? "Adding..." : "Confirm & Save"}
       </Button>
     </form>
+  );
+}
+
+function PaymentProofViewer({ storageId }: { storageId: string }) {
+  const url = useQuery(api.registrations.getFileUrl, { storageId: storageId as any });
+  const [imgError, setImgError] = useState(false);
+  
+  if (url === undefined) {
+    return (
+      <div className="text-white/40 text-xs animate-pulse mt-2 flex items-center gap-2">
+        <div className="w-3 h-3 rounded-full border-2 border-purple-500 border-t-transparent animate-spin" /> 
+        Loading file...
+      </div>
+    );
+  }
+  
+  if (url === null) {
+    return <div className="text-red-400 text-xs mt-2">File not found</div>;
+  }
+
+  return (
+    <div className="mt-3 space-y-3">
+      <div className="relative rounded-xl overflow-hidden border border-white/10 bg-black/40 aspect-video flex items-center justify-center">
+        {!imgError ? (
+          <img 
+            src={url} 
+            alt="Payment Proof" 
+            className="w-full h-full object-contain"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center text-white/40 gap-3 p-8 text-center">
+            <FileText className="w-12 h-12 opacity-50 text-blue-400" />
+            <span className="text-xs font-medium uppercase tracking-widest text-white/60">Document File</span>
+            <span className="text-[10px] text-white/40">File might be a PDF or unsupported image format. Please download to view.</span>
+          </div>
+        )}
+      </div>
+      <a 
+        href={url} 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className="inline-flex items-center justify-center w-full gap-2 text-sm font-bold text-white hover:text-white bg-purple-600 hover:bg-purple-500 px-4 py-3 rounded-xl transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:shadow-[0_0_25px_rgba(168,85,247,0.5)]"
+      >
+        <FileText className="w-4 h-4" />
+        View / Download Full File
+      </a>
+    </div>
   );
 }
