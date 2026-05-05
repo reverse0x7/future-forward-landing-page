@@ -1,0 +1,281 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+@layer base {
+  :root {
+    /* ─── Future Forward — colour palette extracted from logo ─────────────────
+     *
+     *  F-mark gradient  →  Cobalt Blue   #1A6FFF  hsl(218 100% 55%)
+     *                       Mid-Indigo   #5533DD  hsl(249  72% 53%)  (midpoint)
+     *                       Violet-Blue  #6622CC  hsl(270  73% 46%)  (bottom)
+     *
+     *  "FORWARD" text   →  Violet-Purple #7B3FE4  hsl(265  74% 57%)
+     *
+     *  Background        →  Deep Navy    hsl(230  22%  5%)
+     * ─────────────────────────────────────────────────────────────────────── */
+
+    --background: 265 60% 8%;
+    --foreground: 0 0% 100%;
+
+    --card: 265 50% 12%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 265 55% 10%;
+    --popover-foreground: 0 0% 100%;
+
+    /* Primary — Electric Purple (#7B3FE4 / hsl(265 74% 57%)) */
+    --primary: 265 74% 57%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 265 100% 75%;
+
+    /* Secondary — Neon Blue / Cyan (#00D1FF) */
+    --secondary: 191 100% 50%;
+    --secondary-foreground: 265 60% 8%;
+
+    --muted: 265 40% 18%;
+    --muted-foreground: 265 20% 75%;
+
+    --accent: 265 74% 57%;
+    --accent-foreground: 0 0% 100%;
+
+    /* CTA — White/Purple Accent */
+    --cta: 0 0% 100%;
+    --cta-foreground: 265 60% 8%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 265 74% 57% / 0.25;
+    --input: 265 40% 15%;
+    --ring: 265 74% 57%;
+
+    --radius: 0.875rem;
+
+    /* Surface tokens */
+    --surface-glass: 265 50% 12%;
+    --surface-glass-strong: 265 55% 10%;
+
+    /* Gradients — Updated with stronger purple */
+    --gradient-primary: linear-gradient(135deg, hsl(265 74% 57%), hsl(249 72% 53%));
+    --gradient-hero: radial-gradient(ellipse at top, hsl(265 74% 57% / 0.5), transparent 70%),
+                     radial-gradient(ellipse at center, hsl(265 60% 8% / 0.8), transparent 60%),
+                     radial-gradient(ellipse at bottom, hsl(265 74% 57% / 0.2), transparent 55%);
+    --gradient-text: linear-gradient(135deg, #FFFFFF, hsl(265 100% 85%));
+    --gradient-glow: radial-gradient(circle, hsl(265 74% 57% / 0.65), transparent 70%);
+
+    /* Shadows / glows — Electric Purple */
+    --shadow-glow: 0 0 45px hsl(265 74% 57% / 0.5);
+    --shadow-glow-purple: 0 0 55px hsl(265 74% 57% / 0.7);
+    --shadow-elevate: 0 20px 60px -20px hsl(265 74% 57% / 0.5);
+    --shadow-card: 0 8px 32px hsl(265 74% 5% / 0.9);
+
+    /* Transitions */
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .dark {
+    --background: 265 60% 8%;
+    --foreground: 0 0% 100%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+    scrollbar-width: thin;
+    scrollbar-color: hsl(0 0% 100% / 0.15) transparent;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-family: 'Montserrat', system-ui, sans-serif;
+    background-image:
+      radial-gradient(ellipse 100% 60% at 50% -5%, hsl(265 74% 57% / 0.4), transparent),
+      radial-gradient(ellipse 75% 50% at 85% 55%, hsl(249 72% 53% / 0.2), transparent),
+      radial-gradient(ellipse 55% 45% at 10% 80%, hsl(265 74% 57% / 0.2), transparent),
+      radial-gradient(ellipse 40% 30% at 50% 100%, hsl(270 73% 46% / 0.1), transparent);
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus {
+    -webkit-text-fill-color: #ffffff !important;
+    -webkit-box-shadow: 0 0 0px 1000px hsl(var(--surface-glass) / 0.9) inset !important;
+    transition: background-color 5000s ease-in-out 0s !important;
+  }
+}
+
+@layer components {
+  .glass {
+    background: hsl(var(--surface-glass) / 0.5);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid hsl(0 0% 100% / 0.08);
+  }
+
+  .glass-strong {
+    background: hsl(var(--surface-glass-strong) / 0.75);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid hsl(0 0% 100% / 0.1);
+  }
+
+  .text-gradient {
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .text-gradient-primary {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .glow-primary {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .glow-purple {
+    box-shadow: var(--shadow-glow-purple);
+  }
+
+  /* Grid — stronger purple tint */
+  .grid-bg {
+    background-image:
+      linear-gradient(hsl(255 100% 62% / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(255 100% 62% / 0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  @media (min-height: 820px) and (min-width: 768px) {
+    .scroll-indicator {
+      display: flex;
+    }
+  }
+}
+
+@layer utilities {
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+  .animate-gradient-shift {
+    background-size: 200% 200%;
+    animation: gradient-shift 8s ease infinite;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 35px hsl(255 100% 62% / 0.5); }
+  50% { box-shadow: 0 0 70px hsl(255 100% 62% / 0.7), 0 0 110px hsl(191 100% 50% / 0.15); }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes scan-line {
+  0% { transform: translateY(-10%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(110%); opacity: 0; }
+}
+
+.animate-scan-line {
+  animation: scan-line 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes card-hover-loop {
+  0%, 33%, 100% {
+    transform: translateY(0);
+    border-color: hsl(0 0% 100% / 0.08);
+    box-shadow: none;
+  }
+  10%, 23% {
+    transform: translateY(-8px);
+    border-color: hsl(var(--primary) / 0.5);
+    box-shadow: 0 0 30px hsl(var(--primary) / 0.15);
+  }
+}
+
+@keyframes img-hover-loop {
+  0%, 33%, 100% {
+    filter: grayscale(100%);
+  }
+  10%, 23% {
+    filter: grayscale(0%);
+  }
+}
+
+.animate-card-loop {
+  animation: card-hover-loop 9s infinite ease-in-out;
+}
+
+.animate-img-loop {
+  animation: img-hover-loop 9s infinite ease-in-out;
+}
+
+/* Custom Minimal Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(0 0% 100% / 0.08);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(0 0% 100% / 0.15);
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 2px;
+}
