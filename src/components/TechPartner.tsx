@@ -26,7 +26,7 @@ const TechPartner = () => {
                   className="w-20 h-20 md:w-24 md:h-24 rounded-2xl shrink-0 shadow-glow"
                 />
                 <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-secondary mb-3 flex items-center gap-2">
+                  <p className="text-xs uppercase tracking-[0.3em] text-primary mb-3 flex items-center gap-2">
                     <Sparkles className="w-3.5 h-3.5" />
                     Exclusive Technology Partner
                   </p>

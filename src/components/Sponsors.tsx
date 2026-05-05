@@ -128,7 +128,7 @@ const Sponsors = () => {
 
         {/* Exclusive Technology Partner — integrated into sponsors */}
         <div>
-          <p className="text-center text-xs uppercase tracking-[0.3em] font-accent text-secondary mb-6 flex items-center justify-center gap-2">
+          <p className="text-center text-xs uppercase tracking-[0.3em] font-accent text-primary mb-6 flex items-center justify-center gap-2">
             <Sparkles className="w-3.5 h-3.5" />
             Exclusive Technology Partner
           </p>
